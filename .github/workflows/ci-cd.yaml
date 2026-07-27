@@ -13,6 +13,7 @@ permissions:
 
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/ledger-api
+  GITLEAKS_VERSION: 8.24.3
 
 jobs:
   security-gates:
@@ -30,10 +31,29 @@ jobs:
       - name: Run Semgrep
         run: semgrep scan --config=p/default --error --json --output semgrep.json app/
 
+      - name: Install Gitleaks
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz gitleaks
+          sudo mv gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: true
+        run: |
+          gitleaks git \
+            --redact \
+            --verbose \
+            --exit-code 1 \
+            --report-format sarif \
+            --report-path gitleaks.sarif \
+            --log-opts=-1
+
+      - name: Upload Gitleaks SARIF artifact
+        if: always() && hashFiles('gitleaks.sarif') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-results
+          path: gitleaks.sarif
 
       - name: Run filesystem Trivy
         uses: aquasecurity/trivy-action@v0.36.0
