@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: intruder
+  namespace: payments
+  labels:
+    app.kubernetes.io/name: intruder
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: intruder
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: intruder
+    spec:
+      serviceAccountName: intruder
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: intruder
+          image: curlimages/curl:8.8.0
+          command: ["sh", "-c", "sleep infinity"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "test -d /tmp"]
+            initialDelaySeconds: 3
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "test -d /tmp"]
+            initialDelaySeconds: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

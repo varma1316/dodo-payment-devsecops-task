@@ -1,5 +1,5 @@
+.age-key.txt
+dist/
 __pycache__/
 *.pyc
-.env
 .DS_Store
-*.log

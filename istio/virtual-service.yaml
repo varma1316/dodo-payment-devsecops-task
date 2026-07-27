@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: ledger-api
+  namespace: payments
+spec:
+  hosts:
+    - ledger.localdev.me
+  gateways:
+    - payments-gateway
+  http:
+    - route:
+        - destination:
+            host: ledger-api.payments.svc.cluster.local
+            subset: stable
+          weight: 100

@@ -1,0 +1,29 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: ledger-default-deny
+  namespace: payments
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ledger-api
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: ledger-allow-reporting
+  namespace: payments
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ledger-api
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/payments/sa/reporting
+      to:
+        - operation:
+            methods: ["GET", "POST"]
+            paths: ["/health", "/ready", "/tokenize", "/transactions"]
