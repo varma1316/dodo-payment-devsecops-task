@@ -20,9 +20,9 @@ spec:
           image: ledger-api:starter
           imagePullPolicy: IfNotPresent
           env:
-            - name: STRIPE_API_KEY
-              value: "sk_live_9f3a2b7c1e4d8REDACTED"
-            - name: DB_PASSWORD
-              value: "P@ssw0rd123"
+            - name: PAYMENT_PROVIDER_MODE
+              value: "sandbox"
+            - name: LEDGER_DATABASE
+              value: "local-dev"
           ports:
             - containerPort: 8080
