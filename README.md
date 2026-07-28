@@ -14,6 +14,7 @@ The original insecure manifests remain in [`deploy/`](deploy/) intentionally. Th
 - A local, intentionally vulnerable lab and a Task 4 assessment report
 
 ## Architecture
+Video link:-
 
 ![Secure delivery and zero-trust runtime architecture](docs/evidence/architecture.svg)
 
